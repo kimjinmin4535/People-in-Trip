@@ -77,17 +77,6 @@
 			</div>
 		</div>
  
- <script>
- $(function(){
-  $('#searchBtn').click(function() {
-   self.location = "${contextPath}/tourist/busanfestival_PageList11"
-     + '${pageMaker.makeQuery(1)}'
-     + "&searchType=t"
-     + "&keyword="
-     + encodeURIComponent($('#keywordInput').val());
-    });
- });   
- </script>
-</div>
+
 </body>
 </html>

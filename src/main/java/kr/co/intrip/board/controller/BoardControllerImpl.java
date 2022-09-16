@@ -1126,7 +1126,7 @@ public class BoardControllerImpl implements BoardController {
 		return "redirect:/board/community_detail2.do";
 	}
 
-	// 페이징 검색
+	// 페이징 검색 관리자 신고수 체크
 	@RequestMapping(value = "/board/community-accomaster", method = RequestMethod.GET)
 	public void listPagemaster(@ModelAttribute("scri") SearchCriteria scri, Model model) throws Exception {
 

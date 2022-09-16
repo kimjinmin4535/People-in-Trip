@@ -16,7 +16,6 @@ request.setCharacterEncoding("UTF-8");
 	margin-top: 2%;
 }
 
-<<<<<<< HEAD
  .seacrh_container {
      align-items: center;
      width: 300px;
@@ -34,10 +33,7 @@ request.setCharacterEncoding("UTF-8");
      padding: 0px 24px;
  }
 
-#searchBtn {
-=======
 #searchBtn12 {
->>>>>>> 8b2bf3b7af5e6a3a6941b5c5b2bfde26ff243223
 	background-color: #9966ff;
 	width: 60px;
 	height: 30px;
