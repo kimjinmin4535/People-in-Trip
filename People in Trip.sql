@@ -1,6 +1,7 @@
 DROP TABLE P_MEMBER CASCADE CONSTRAINTS;
 CREATE TABLE P_MEMBER (
 	ID			VARCHAR2(20) PRIMARY KEY 
+	, NAME 			VARCHAR2(20) NOT NULL
 	, PWD			VARCHAR2(20) NOT NULL
 	, NICK_NM		VARCHAR2(30) NOT NULL
 	, EMAIL 		VARCHAR2(50) NOT NULL
@@ -9,147 +10,379 @@ CREATE TABLE P_MEMBER (
 	, GRADE			VARCHAR2(20) DEFAULT '일반회원' NOT NULL
 );
 
-INSERT INTO EZEN.P_MEMBER (ID, PWD, NICK_NM, EMAIL)
-VALUES('apple', '0001', '사과', 'apple@gmail.com');
-INSERT INTO EZEN.P_MEMBER (ID, PWD, NICK_NM, EMAIL)
-VALUES('banana', '0002', '바나나', 'banana@naver.com');
-INSERT INTO EZEN.P_MEMBER (ID, PWD, NICK_NM, EMAIL)
-VALUES('chocolate', '0003', '초코', 'chocolate@gmail.com');
-INSERT INTO EZEN.P_MEMBER (ID, PWD, NICK_NM, EMAIL)
-VALUES('dorazi', '0004', '도라지', 'dorazi@daum.net');
-INSERT INTO EZEN.P_MEMBER (ID, PWD, NICK_NM, EMAIL)
-VALUES('egg', '0005', '계란', 'egg@kakao.co,kr');
-ROLLBACK;
-COMMIT;
+
+
+DROP TABLE P_imageFile CASCADE CONSTRAINTS;
+CREATE TABLE P_imageFile (
+	imageFileNO		number(10)	PRIMARY key
+	,imageFileName	varchar2(50)
+	,regDate	DATE DEFAULT sysdate
+	,POST_NUM	number(10)
+	,CONSTRAINT POST_NUM FOREIGN key(POST_NUM) REFERENCES P_BOARD(POST_NUM)
+	 ON DELETE CASCADE	-- 게시판 글을 삭제할 경우 해당 글번호를 참조하는 이미지 정보도 자동으로 삭제됨
+);
+
+DROP TABLE P_imageFile1 CASCADE CONSTRAINTS;
+CREATE TABLE P_imageFile1 (
+	imageFileNO		number(10)	PRIMARY key
+	,imageFileName	varchar2(50)
+	,regDate	DATE DEFAULT sysdate
+	,POST_NUM	number(10)
+	, FOREIGN key(POST_NUM) REFERENCES P_BOARD1(POST_NUM)
+	 ON DELETE CASCADE	-- 게시판 글을 삭제할 경우 해당 글번호를 참조하는 이미지 정보도 자동으로 삭제됨
+);
+
 
 DROP TABLE P_BOARD CASCADE CONSTRAINTS;
 CREATE TABLE P_BOARD (
 	POST_NUM		NUMBER PRIMARY KEY
-	, ID  			VARCHAR2(20) NOT NULL
-	, BOARD_NUM 	NUMBER(1) NOT NULL
-	, POST_CATE		NUMBER(2) NOT NULL
+	, ID  			VARCHAR2(50) NOT NULL
 	, POST_TITLE	VARCHAR2(100) NOT NULL
 	, POST_CONTENT	VARCHAR2(4000) NOT NULL
 	, POST_DATE 	DATE DEFAULT SYSDATE NOT NULL
 	, VISITCOUNT	NUMBER DEFAULT 0 NOT NULL
-	, COUNT_COMMENT NUMBER
-	, OFILE			VARCHAR2(200)
-	, SFILE 		VARCHAR2(30)
-	, FOREIGN KEY(ID) REFERENCES P_MEMBER (ID)
+	, commentcount NUMBER DEFAULT 0 NOT NULL
+	,imageFileName	varchar2(100)
+	,LIKEHIT NUMBER DEFAULT 0 NOT NULL
+	,SINHIT NUMBER DEFAULT 0 NOT NULL
+	, FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
 );
 
-INSERT INTO EZEN.P_BOARD (POST_NUM, ID, BOARD_NUM, POST_CATE, POST_TITLE, POST_CONTENT)
-VALUES(seq_BOARD_num.nextval, 'apple', 1, 11, '사과먹고싶다.', '빨간사과 파란사과');
-INSERT INTO EZEN.P_BOARD (POST_NUM, ID, BOARD_NUM, POST_CATE, POST_TITLE, POST_CONTENT)
-VALUES(seq_BOARD_num.nextval, 'banana', 2, 12, '바나나는 길어', '길으면 기차');
-INSERT INTO EZEN.P_BOARD (POST_NUM, ID, BOARD_NUM, POST_CATE, POST_TITLE, POST_CONTENT)
-VALUES(seq_BOARD_num.nextval, 'chocolate', 1, 13, '달달한 초코렛', '기브 미 초코렛');
-INSERT INTO EZEN.P_BOARD (POST_NUM, ID, BOARD_NUM, POST_CATE, POST_TITLE, POST_CONTENT)
-VALUES(seq_BOARD_num.nextval, 'dorazi', 2, 14, '도라지', '도라치무침');
-INSERT INTO EZEN.P_BOARD (POST_NUM, ID, BOARD_NUM, POST_CATE, POST_TITLE, POST_CONTENT)
-VALUES(seq_BOARD_num.nextval, 'egg', 1, 15, '계란프라이', '맨날 먹는다.');
+DROP TABLE P_BOARD1 CASCADE CONSTRAINTS;
+CREATE TABLE P_BOARD1 (
+	POST_NUM		NUMBER PRIMARY KEY
+	, ID  			VARCHAR2(50) NOT NULL
+	, POST_TITLE	VARCHAR2(100) NOT NULL
+	, POST_CONTENT	VARCHAR2(4000) NOT NULL
+	, POST_DATE 	DATE DEFAULT SYSDATE NOT NULL
+	, VISITCOUNT	NUMBER DEFAULT 0 NOT NULL
+	, commentcount NUMBER DEFAULT 0 NOT NULL
+	,imageFileName	varchar2(100)
+	,LIKEHIT NUMBER DEFAULT 0 NOT NULL
+	,SINHIT NUMBER DEFAULT 0 NOT NULL
+	, FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
+);
+
+DROP TABLE l_board CASCADE CONSTRAINTS;
+create table l_board(
+   LIKENO NUMBER  NOT null  PRIMARY KEY ,
+	POST_NUM NUMBER ,
+	ID VARCHAR2(50) NOT NULL,
+	LIKECHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(POST_NUM) REFERENCES P_BOARD(POST_NUM) ON DELETE CASCADE
+)
+;
+
+DROP TABLE l_board1 CASCADE CONSTRAINTS;
+create table l_board1(
+   LIKENO1 NUMBER  NOT null  PRIMARY KEY ,
+	POST_NUM NUMBER ,
+	ID VARCHAR2(50) NOT NULL,
+	LIKECHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(POST_NUM) REFERENCES P_BOARD1(POST_NUM) ON DELETE CASCADE
+)
+;
+
+DROP TABLE s_board CASCADE CONSTRAINTS;
+create table s_board(
+   	SNO NUMBER  NOT null  PRIMARY KEY ,
+	POST_NUM NUMBER ,
+	ID VARCHAR2(50) NOT NULL,
+	SCHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(POST_NUM) REFERENCES P_BOARD(POST_NUM) ON DELETE CASCADE
+)
+;
+
+DROP TABLE s_board1 CASCADE CONSTRAINTS;
+create table s_board1(
+   	SNO NUMBER  NOT null  PRIMARY KEY ,
+	POST_NUM NUMBER ,
+	ID VARCHAR2(50) NOT NULL,
+	SCHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(POST_NUM) REFERENCES P_BOARD1(POST_NUM) ON DELETE CASCADE
+)
+;
+
+DROP TABLE P_BOARD_COMMENT CASCADE CONSTRAINTS;
+CREATE TABLE P_BOARD_COMMENT (
+   COM_NUM            NUMBER PRIMARY KEY
+   , ID              VARCHAR2(50) NOT NULL
+   , POST_NUM    	 NUMBER NOT NULL   
+   , COM_CONTENT       VARCHAR2(200) NOT NULL
+   , COM_DATE         DATE DEFAULT SYSDATE NOT NULL
+   , FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
+   , FOREIGN KEY(POST_NUM) REFERENCES P_BOARD (POST_NUM) ON DELETE cascade
+);
+CREATE SEQUENCE COM_NUM START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE COM_NUM; 
+
+DROP TABLE P_BOARD_COMMENT2 CASCADE CONSTRAINTS;
+CREATE TABLE P_BOARD_COMMENT2 (
+   COM_NUM            NUMBER PRIMARY KEY
+   , ID              VARCHAR2(50) NOT NULL
+   , POST_NUM    	 NUMBER NOT NULL   
+   , COM_CONTENT       VARCHAR2(200) NOT NULL
+   , COM_DATE         DATE DEFAULT SYSDATE NOT NULL
+   , FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
+   , FOREIGN KEY(POST_NUM) REFERENCES P_BOARD1 (POST_NUM) ON DELETE cascade
+);
+CREATE SEQUENCE COM_NUM2 START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE COM_NUM2; 
+
+DROP TABLE P_busantourist CASCADE CONSTRAINTS;
+CREATE TABLE P_busantourist (
+   UC_SEQ            number PRIMARY KEY 
+   ,PLACE            VARCHAR2(300)  
+   ,ADDR1            VARCHAR2(500)
+   , CNTCT_TEL         VARCHAR2(500)
+   , ITEMCNTNTS      clob 
+   , MAIN_IMG_NORMAL   VARCHAR2(1000)
+   , SUBTITLE         VARCHAR2(700)
+   , LAT            number
+   , LNG            number
+);
+ALTER TABLE P_busantourist ADD viewcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busantourist ADD commentcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busantourist ADD steamedhit NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busantourist ADD suggestionhit NUMBER DEFAULT 0 NOT NULL;
+
+
+DROP TABLE P_busanfestival CASCADE CONSTRAINTS;
+CREATE TABLE P_busanfestival (
+   UC_SEQ            number PRIMARY KEY 
+   ,PLACE            VARCHAR2(300)  
+   ,ADDR1            VARCHAR2(500)
+   , CNTCT_TEL         VARCHAR2(500)
+   , ITEMCNTNTS      clob 
+   , MAIN_IMG_NORMAL   VARCHAR2(1000)
+   , SUBTITLE         VARCHAR2(700)
+   , LAT            number
+   , LNG            number
+);
+ALTER TABLE P_busanfestival ADD viewcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busanfestival ADD commentcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busanfestival ADD steamedhit NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busanfestival ADD suggestionhit NUMBER DEFAULT 0 NOT NULL;
+
+
+DROP TABLE P_busanexperience CASCADE CONSTRAINTS;
+CREATE TABLE P_busanexperience (
+   UC_SEQ            number PRIMARY KEY 
+   ,PLACE            VARCHAR2(300)  
+   ,ADDR1            VARCHAR2(500)
+   , CNTCT_TEL         VARCHAR2(500)
+   , ITEMCNTNTS      clob 
+   , MAIN_IMG_NORMAL   VARCHAR2(1000)
+   , SUBTITLE         VARCHAR2(700)
+   , LAT            number
+   , LNG            number
+);
+
+ALTER TABLE P_busanexperience ADD viewcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busanexperience ADD commentcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busanexperience ADD steamedhit NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_busanexperience ADD suggestionhit NUMBER DEFAULT 0 NOT NULL;
+
+
+DROP TABLE P_BUSAN_COMMENT CASCADE CONSTRAINTS;
+CREATE TABLE P_BUSAN_COMMENT (
+   COM_NUM         NUMBER PRIMARY KEY
+   , ID              VARCHAR2(50) NOT NULL
+   , UC_SEQ      NUMBER  NOT NULL   
+   , COM_CONTENT       VARCHAR2(200) NOT NULL
+   , COM_DATE         DATE DEFAULT SYSDATE NOT NULL
+   , FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
+   , FOREIGN KEY(UC_SEQ) REFERENCES P_BUSANTOURIST (UC_SEQ)
+);
+CREATE SEQUENCE BusanCOM_NUM1 START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE BusanCOM_NUM1;
+
+DROP TABLE P_BUSANfestival_COMMENT CASCADE CONSTRAINTS;
+CREATE TABLE P_BUSANfestival_COMMENT (
+   COM_NUM         NUMBER PRIMARY KEY
+   , ID              VARCHAR2(50) NOT NULL
+   , UC_SEQ      NUMBER  NOT NULL   
+   , COM_CONTENT       VARCHAR2(200) NOT NULL
+   , COM_DATE         DATE DEFAULT SYSDATE NOT NULL
+   , FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
+   , FOREIGN KEY(UC_SEQ) REFERENCES P_BUSANFESTIVAL (UC_SEQ)
+);
+CREATE SEQUENCE BusanfestivalCOM_NUM1 START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE BusanfestivalCOM_NUM1;
+
+DROP TABLE P_BUSANexperience_COMMENT CASCADE CONSTRAINTS;
+CREATE TABLE P_BUSANexperience_COMMENT (
+   COM_NUM         NUMBER PRIMARY KEY
+   , ID              VARCHAR2(50) NOT NULL
+   , UC_SEQ      NUMBER  NOT NULL   
+   , COM_CONTENT       VARCHAR2(200) NOT NULL
+   , COM_DATE         DATE DEFAULT SYSDATE NOT NULL
+   , FOREIGN KEY(ID) REFERENCES P_MEMBER (ID) ON DELETE cascade
+   , FOREIGN KEY(UC_SEQ) REFERENCES P_busanexperience (UC_SEQ)
+);
+CREATE SEQUENCE BusanexperienceCOM_NUM1 START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE BusanexperienceCOM_NUM1;
+
+
+
+SELECT * FROM P_JEJU_COMMENT WHERE contentsid = 'CNTS_000000000021034';
+CREATE SEQUENCE COM_NUM1 START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE COM_NUM1;
+
+
+DROP TABLE busanexperience_suggestion CASCADE CONSTRAINTS;
+create table busanexperience_suggestion(
+   suggestionno NUMBER  NOT null  PRIMARY KEY ,
+   UC_SEQ       NUMBER  NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   suggestioncheck NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(UC_SEQ) REFERENCES p_busanexperience(UC_SEQ) ON DELETE CASCADE
+)
+;
+
+DROP TABLE busantourist_suggestion CASCADE CONSTRAINTS;
+create table busantourist_suggestion(
+   suggestionno NUMBER  NOT null  PRIMARY KEY ,
+   UC_SEQ       NUMBER  NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   suggestioncheck NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(UC_SEQ) REFERENCES p_busantourist(UC_SEQ) ON DELETE CASCADE
+)
+; 
+
+DROP TABLE busanfestival_suggestion CASCADE CONSTRAINTS;
+create table busanfestival_suggestion(
+   suggestionno NUMBER  NOT null  PRIMARY KEY ,
+   UC_SEQ       NUMBER  NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   suggestioncheck NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(UC_SEQ) REFERENCES p_busanfestival(UC_SEQ) ON DELETE CASCADE
+)
+;
+
+DROP TABLE busantourist_steamed CASCADE CONSTRAINTS;
+create table busantourist_steamed(
+   steamedno NUMBER  NOT null  PRIMARY KEY ,
+   UC_SEQ       NUMBER  NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   STEAMEDCHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(UC_SEQ) REFERENCES p_busantourist(UC_SEQ) ON DELETE CASCADE
+)
+; 
+
+DROP TABLE busanfestival_steamed CASCADE CONSTRAINTS;
+create table busanfestival_steamed(
+   steamedno NUMBER  NOT null  PRIMARY KEY ,
+   UC_SEQ       NUMBER  NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   STEAMEDCHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(UC_SEQ) REFERENCES p_busanfestival(UC_SEQ) ON DELETE CASCADE
+)
+; 
+
+DROP TABLE busanexperience_steamed CASCADE CONSTRAINTS;
+create table busanexperience_steamed(
+   steamedno NUMBER  NOT null  PRIMARY KEY ,
+   UC_SEQ       NUMBER  NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   STEAMEDCHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(UC_SEQ) REFERENCES p_busanexperience(UC_SEQ) ON DELETE CASCADE
+)
+; 
+
+
+
+INSERT INTO EZEN.P_BOARD1
+(POST_NUM, ID, POST_TITLE, POST_CONTENT, POST_DATE, VISITCOUNT)
+VALUES(seq_BOARD_num.nextval, 'apple', 'sss', 'z', SYSDATE , '2');
+
+INSERT INTO EZEN.P_BOARD
+(POST_NUM, ID, POST_TITLE, POST_CONTENT, POST_DATE, VISITCOUNT)
+VALUES(seq_BOARD_num.nextval, 'apple', '2', 'z', SYSDATE , '2');
+INSERT INTO EZEN.P_BOARD (POST_NUM, ID, POST_CATE, POST_TITLE, POST_CONTENT)
+VALUES(seq_BOARD_num.nextval, 'apple',  2, '사과먹고싶다.', '빨간사과 파란사과1');
+INSERT INTO EZEN.P_BOARD (POST_NUM, ID, POST_CATE, POST_TITLE, POST_CONTENT)
+VALUES(seq_BOARD_num.nextval, 'banana',  12, '바나나는 길어', '길으면 기차');
+INSERT INTO EZEN.P_BOARD (POST_NUM, ID, POST_CATE, POST_TITLE, POST_CONTENT)
+VALUES(seq_BOARD_num.nextval, 'chocolate',  13, '달달한 초코렛', '기브 미 초코렛');
+INSERT INTO EZEN.P_BOARD (POST_NUM, ID, POST_CATE, POST_TITLE, POST_CONTENT)
+VALUES(seq_BOARD_num.nextval, 'dorazi', 2,  '도라지', '도라치무침');
+INSERT INTO EZEN.P_BOARD (POST_NUM, ID, POST_CATE, POST_TITLE, POST_CONTENT)
+VALUES(seq_BOARD_num.nextval, 'egg', 1,  '계란프라이', '맨날 먹는다.');
 COMMIT;
 
 
-DROP TABLE P_MESSAGE CASCADE CONSTRAINTS;
-CREATE TABLE P_MESSAGE (
-	MSG_NUM			NUMBER PRIMARY KEY
-	, DATE_SENT		DATE DEFAULT SYSDATE NOT NULL	
-	, SENDER 		VARCHAR2(20) NOT NULL
-	, RECIEVER		VARCHAR2(20) NOT NULL
-	, MSG_CONTENT	VARCHAR2(600) NOT NULL
-	, MSG_READ		VARCHAR2(20) DEFAULT '읽지않음' NOT NULL
-	, FOREIGN KEY(SENDER) REFERENCES P_MEMBER(ID)
-	, FOREIGN KEY(RECIEVER) REFERENCES P_MEMBER(ID)
+DROP TABLE P_tourist CASCADE CONSTRAINTS;
+CREATE TABLE P_tourist (
+   contentsid      VARCHAR2(1000) PRIMARY KEY 
+   ,alltag         VARCHAR2(1000)
+   , label         VARCHAR2(500)
+   , label2      VARCHAR2(500)
+   , title         VARCHAR2(500)
+   , address      VARCHAR2(500)
+   , tag         VARCHAR2(500)
+   , introduction   VARCHAR2(1500)
+   , imgpath      VARCHAR2(500)   
+   , phoneno      VARCHAR2(500)
+   , latitude      number
+   , longitude      number
 );
-
-INSERT INTO EZEN.P_MESSAGE (MSG_NUM, SENDER, RECIEVER, MSG_CONTENT)
-VALUES(seq_MESSAGE_num.nextval, 'apple', 'banana', '바나나 잘 사니');
-INSERT INTO EZEN.P_MESSAGE (MSG_NUM, SENDER, RECIEVER, MSG_CONTENT)
-VALUES(seq_MESSAGE_num.nextval, 'banana', 'chocolate', '초코렛 까맣다');
-INSERT INTO EZEN.P_MESSAGE (MSG_NUM, SENDER, RECIEVER, MSG_CONTENT)
-VALUES(seq_MESSAGE_num.nextval, 'chocolate', 'dorazi', '도라지 쓰다');
-INSERT INTO EZEN.P_MESSAGE (MSG_NUM, SENDER, RECIEVER, MSG_CONTENT)
-VALUES(seq_MESSAGE_num.nextval, 'dorazi', 'egg', '김계란');
-INSERT INTO EZEN.P_MESSAGE (MSG_NUM, SENDER, RECIEVER, MSG_CONTENT)
-VALUES(seq_MESSAGE_num.nextval, 'egg', 'apple', '애플 떡상');
-COMMIT;
+ALTER TABLE P_TOURIST ADD viewcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_TOURIST ADD commentcount NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_TOURIST ADD steamedhit NUMBER DEFAULT 0 NOT NULL;
+ALTER TABLE P_TOURIST ADD suggestionhit NUMBER DEFAULT 0 NOT NULL;
 
 
-DROP TABLE P_COMMENT CASCADE CONSTRAINTS;
-CREATE TABLE P_COMMENT (
-	COM_NUM				NUMBER PRIMARY KEY
-	, ID  				VARCHAR2(20) NOT NULL
-	, POST_NUM 			NUMBER NOT NULL
-	, COM_CONTENT 		VARCHAR2(300) NOT NULL
-	, COM_DATE			DATE DEFAULT SYSDATE NOT NULL
-	, PARENT_COM_NUM	NUMBER
-	, FOREIGN KEY(ID) REFERENCES P_MEMBER (ID)
-	, FOREIGN KEY(POST_NUM) REFERENCES P_BOARD (POST_NUM)
-	, FOREIGN KEY(PARENT_COM_NUM) REFERENCES P_COMMENT (COM_NUM)
+DROP TABLE P_JEJU_COMMENT CASCADE CONSTRAINTS;
+CREATE TABLE P_JEJU_COMMENT (
+   COM_NUM         NUMBER PRIMARY KEY
+   , ID              VARCHAR2(50) NOT NULL
+   , contentsid      VARCHAR2(1000) NOT NULL   
+   , COM_CONTENT       VARCHAR2(200) NOT NULL
+   , COM_DATE         DATE DEFAULT SYSDATE NOT NULL
+   , FOREIGN KEY(ID) REFERENCES P_MEMBER (ID)
+   , FOREIGN KEY(contentsid) REFERENCES P_TOURIST (contentsid)
 );
+CREATE SEQUENCE COM_NUM1 START WITH 1 INCREMENT BY 1 MAXVALUE 99999 CYCLE NOCACHE;
+DROP SEQUENCE COM_NUM1;
 
-INSERT INTO EZEN.P_COMMENT (COM_NUM, ID, POST_NUM, COM_CONTENT)
-VALUES(seq_COMMENT_num.nextval, 'apple', 100005, '나는 사과');
-INSERT INTO EZEN.P_COMMENT (COM_NUM, ID, POST_NUM, COM_CONTENT)
-VALUES(seq_COMMENT_num.nextval, 'banana', 100004, '나는 바나나');
-INSERT INTO EZEN.P_COMMENT (COM_NUM, ID, POST_NUM, COM_CONTENT)
-VALUES(seq_COMMENT_num.nextval, 'chocolate', 100003, '나는 초코렛');
-INSERT INTO EZEN.P_COMMENT (COM_NUM, ID, POST_NUM, COM_CONTENT)
-VALUES(seq_COMMENT_num.nextval, 'dorazi', 100002, '나는 도라지');
-INSERT INTO EZEN.P_COMMENT (COM_NUM, ID, POST_NUM, COM_CONTENT)
-VALUES(seq_COMMENT_num.nextval, 'egg', 100001, '나는 계란');
-COMMIT;
-
-DROP TABLE P_RECOMMEND CASCADE CONSTRAINTS;
-CREATE TABLE P_RECOMMEND (
-	REC_NUM 		NUMBER PRIMARY KEY
-	, ID  			VARCHAR2(20) NOT NULL
-	, POST_NUM		NUMBER NOT NULL
-	, FOREIGN KEY(ID) REFERENCES P_MEMBER (ID)
-	, FOREIGN KEY(POST_NUM) REFERENCES P_BOARD (POST_NUM)
-);
-
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'apple', 100001);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'apple', 100002);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'apple', 100003);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'banana', 100001);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'banana', 100004);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'banana', 100005);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'chocolate', 100001);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'dorazi', 100001);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'dorazi', 100002);
-INSERT INTO EZEN.P_RECOMMEND (REC_NUM, ID, POST_NUM) VALUES(seq_RECOMMEND_num.nextval, 'egg', 100001);
-COMMIT;
-
-DROP TABLE P_REPORT CASCADE CONSTRAINTS;
-CREATE TABLE P_REPORT (
-	REP_NUM			NUMBER PRIMARY KEY
-	, ID  			VARCHAR2(20) NOT NULL
-	, POST_NUM		NUMBER 
-	, COM_NUM		NUMBER 
-	, FOREIGN KEY(ID) REFERENCES P_MEMBER (ID)
-	, FOREIGN KEY(POST_NUM) REFERENCES P_BOARD (POST_NUM)
-	, FOREIGN KEY(COM_NUM) REFERENCES P_COMMENT (COM_NUM)
-);
+SELECT * FROM P_JEJU_COMMENT WHERE contentsid = 'CNTS_000000000021034';
 
 
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, POST_NUM)
-VALUES(seq_REPORT_num.nextval, 'apple', 100002);
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, COM_NUM)
-VALUES(seq_REPORT_num.nextval, 'banana', 300003);
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, POST_NUM)
-VALUES(seq_REPORT_num.nextval, 'chocolate', 100001);
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, COM_NUM)
-VALUES(seq_REPORT_num.nextval, 'apple', 300003);
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, POST_NUM)
-VALUES(seq_REPORT_num.nextval, 'egg', 100004);
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, COM_NUM)
-VALUES(seq_REPORT_num.nextval, 'dorazi', 300005);
-INSERT INTO EZEN.P_REPORT(REP_NUM, ID, POST_NUM)
-VALUES(seq_REPORT_num.nextval, 'banana', 100003);
-COMMIT;
+DROP TABLE tourist_steamed CASCADE CONSTRAINTS;
+create table tourist_steamed(
+   steamedno NUMBER  NOT null  PRIMARY KEY ,
+   contentsid VARCHAR2(1000) NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   STEAMEDCHECK NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(contentsid) REFERENCES p_tourist(contentsid) ON DELETE CASCADE
+)
+;   
 
+DROP TABLE tourist_suggestion CASCADE CONSTRAINTS;
+create table tourist_suggestion(
+   suggestionno NUMBER  NOT null  PRIMARY KEY ,
+   contentsid VARCHAR2(1000) NOT NULL ,
+   ID VARCHAR2(50) NOT NULL,
+   suggestioncheck NUMBER DEFAULT 0 NOT NULL,
+    FOREIGN KEY(ID) REFERENCES P_MEMBER(ID) ON DELETE CASCADE,
+    FOREIGN KEY(contentsid) REFERENCES p_tourist(contentsid) ON DELETE CASCADE
+)
+; 
+
+
+///////////////////////////////////////////////////////////////////////////////////////////
 
 DROP SEQUENCE seq_BOARD_num;
 CREATE SEQUENCE seq_BOARD_num
@@ -200,15 +433,18 @@ CREATE SEQUENCE seq_REPORT_num
 	nocache							-- 캐시 안 함 
 ;
 
+select * from P_MEMBER 
+WHERE ID='apple' AND EMAIL='apple@gmail.com';
+
 --로그인 
-SELECT * FROM P_MEMBER WHERE ID = 'apple';
+SELECT * FROM P_MEMBER WHERE ID = 'apple' AND NAME = '사과';
 
 --아이디 찾기
 SELECT * FROM P_MEMBER WHERE EMAIL = 'apple@gmail.com';
 
 --비밀번호 찾기
 SELECT * FROM P_MEMBER WHERE ID = 'apple' AND EMAIL = 'apple@gmail.com';
-UPDATE P_MEMBER SET PWD = '0824' WHERE ID = 'apple' AND EMAIL = 'apple@gmail.com';
+UPDATE P_MEMBER SET PWD = '0001' WHERE ID = 'apple';
 ROLLBACK;
 
 --회원가입
@@ -322,3 +558,217 @@ SELECT * FROM P_MESSAGE WHERE SENDER = 'apple';
 -- 쪽지 보기(읽음상태 변경)
 UPDATE P_MESSAGE SET MSG_READ = '읽음' WHERE MSG_NUM = 200001;
 ROLLBACK;
+
+
+ SELECT POST_NUM,
+               id,
+               POST_TITLE,
+               POST_DATE,
+               POST_CATE 
+         FROM P_BOARD     
+         WHERE POST_CATE =1
+         ORDER by POST_NUM DESC;
+        
+        
+        SELECT *FROM P_TOURIST 
+        WHERE label LIKE '%축제%';
+       
+       select POST_NUM, POST_TITLE, POST_CONTENT, ID, POST_DATE, VISITCOUNT,POST_CATE
+       from(
+       select POST_NUM, POST_TITLE, ID,POST_CONTENT, POST_DATE, VISITCOUNT,POST_CATE
+    	from(
+	       select POST_NUM, POST_TITLE,POST_CONTENT, ID, POST_DATE, VISITCOUNT,POST_CATE,
+	       row_number() over(order by POST_NUM desc) as rNum
+	      	FROM P_BOARD 
+	      	WHERE POST_CATE like 1
+       		)
+       	 	 where rNum between 1 and 10
+       	 	  order by POST_NUM desc
+       	)
+       	  where POST_TITLE like '%' || '3' || '%' AND post_cate = 1;
+        
+       
+--페이징
+select POST_NUM, POST_TITLE, ID,POST_CONTENT, POST_DATE, VISITCOUNT,POST_CATE
+    from (
+        select POST_NUM, POST_TITLE,POST_CONTENT, ID, POST_DATE, VISITCOUNT,POST_CATE,
+            row_number() over(order by POST_NUM desc) as rNum
+        from P_BOARD
+    )
+    WHERE rNum between 1 and 10 
+        order by POST_NUM desc;
+       
+--페이징 검색
+ select POST_NUM, POST_TITLE, POST_CONTENT, ID, POST_DATE, VISITCOUNT
+    from (
+        select POST_NUM, POST_TITLE, POST_CONTENT, ID, POST_DATE, VISITCOUNT,
+            row_number() over(order by POST_NUM desc) as rNum
+        from P_BOARD
+            where POST_TITLE like '%' || 'zz' || '%' 
+        ) mb
+    where rNum between 1 and 10  
+        order by POST_NUM desc;  
+       
+ --검색갯수
+   select count(POST_NUM)
+  from P_BOARD
+   where LIKEHIT  > 0;
+   
+ select count(post_num)
+		from p_board1
+		where POST_TITLE like '%' || 'a' || '%'
+  			 and post_num > 0;       
+               
+ --페이징
+
+
+       
+       update p_board set 
+	LIKEHIT = LIKEHIT+1
+	where POST_NUM = 1297;
+
+UPDATE P_BOARD
+SET LIKEHIT = + 1
+WHERE POST_NUM=1269;
+
+
+
+insert into l_board(LIKENO , POST_NUM , id) 
+	values((SELECT NVL(MAX(likeno), 0) + 1 FROM l_board) ,1270 ,'apple');
+
+	delete from l_board where post_num = 1304;
+
+update p_board set 
+	LIKEHIT = LIKEHIT+1
+	where POST_NUM = 1269;
+
+update l_board set LIKECHECK = 1
+	where post_num = 1269 and id = 'apple';
+
+
+SELECT * FROM P_imageFile
+         WHERE POST_NUM = 8
+         ORDER BY IMAGEFILENO;  
+        
+select count(contentsid)
+  from P_tourist
+   where contentsid > 0
+                and title like '%' || '심봉' || '%';  
+
+select count(contentsid)
+  from P_tourist
+   where contentsid > 0;
+
+               
+               
+                
+ UPDATE EZEN.P_BOARD
+SET ID='apple', SINHIT=5 
+WHERE POST_NUM=20;
+
+select POST_NUM, POST_TITLE, POST_CONTENT, ID, POST_DATE,
+		VISITCOUNT,likehit,sinhit
+		from (
+		select POST_NUM, POST_TITLE, POST_CONTENT, ID,
+		POST_DATE,likehit,sinhit,
+		VISITCOUNT,
+		row_number() over(order by POST_NUM desc)
+		as rNum
+		from
+		P_BOARD
+		WHERE  sinhit>2
+		) mb
+		where rNum between 1 and 10
+		order by POST_NUM DESC;
+	
+	select count(post_num)
+		from p_board1
+		where SINHIT >=1;
+	
+	
+	
+	
+		select *
+   			 from (
+        	select pt.*, row_number() over(order by label desc) as rNum
+        	from P_TOURIST pt
+        	) mb
+   		 	where rNum between 1 and 10;
+
+   		 SELECT count(POST_NUM)
+			FROM P_BOARD 
+		WHERE post_title like '%' || 'z' || '%';
+			
+select *
+   			 from (
+        	select pt.*, row_number() over(order by label desc) as rNum
+        	from P_TOURIST pt 
+        	WHERE label LIKE '관광지' AND ALLTAG  NOT LIKE '%전시%' AND title like '%' || '제주' || '%'
+        	) mb
+   		 	where rNum between 1 and 10;
+   		 	
+   SELECT *FROM P_TOURIST  
+   WHERE title like '%' || '롯데' || '%';
+  
+ SELECT 
+(SELECT COUNT(*) FROM P_BUSANEXPERIENCE)P_BUSANEXPERIENCE,
+(SELECT COUNT(*) FROM P_BUSANFESTIVAL)P_BUSANFESTIVAL, 
+(SELECT COUNT(*) FROM P_BUSANTOURIST)P_BUSANTOURIST
+FROM DUAL;
+   
+select 
+    A.*, 
+    B.*, 
+    C.*  
+from 
+    A inner join 
+    B on A.idx = B.idx left outer join 
+    C on A.install = C.install
+order by 
+    A.idx ASC
+  
+ SELECT COUNT(*)  
+  from(  
+ SELECT P_BUSANEXPERIENCE.UC_SEQ ,
+ 		P_BUSANFESTIVAL.UC_SEQ ,
+ 		P_BUSANTOURIST.UC_SEQ 
+ FROM
+ 	P_BUSANEXPERIENCE inner join 
+ 	P_BUSANFESTIVAL ON P_BUSANEXPERIENCE.UC_SEQ = P_BUSANFESTIVAL.UC_SEQ inner join 
+ 	P_BUSANTOURIST ON P_BUSANEXPERIENCE.UC_SEQ = P_BUSANTOURIST.UC_SEQ 
+ 	);
+ 	
+ 
+ 
+ select sum(total) from (select count (*) as total from P_BUSANEXPERIENCE union all select count (*) as total from P_BUSANFESTIVAL union all select count (*) as total from P_BUSANTOURIST);
+ 
+SELECT sum(total)
+FROM (
+   SELECT count(*) total
+   FROM P_BUSANEXPERIENCE
+   WHERE place LIKE '%' || '롯데' || '%'
+   UNION
+   SELECT count(*) total
+   FROM P_BUSANFESTIVAL
+   WHERE place LIKE '%' || '롯데' || '%'
+   UNION
+   SELECT count(*) total
+   FROM P_BUSANTOURIST
+   WHERE place LIKE '%' || '롯데' || '%'
+);
+
+
+
+select * FROM (
+	SELECT ROWNUM  rn,z.* 
+		from(SELECT * FROM P_BOARD ORDER BY post_num DESC)z		
+)
+WHERE rn BETWEEN 1 AND 10;
+
+
+
+
+        	
+   		 	
+   		 	
+  
